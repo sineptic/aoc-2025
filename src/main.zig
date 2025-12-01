@@ -56,7 +56,7 @@ const day_1_part_2 = struct {
     pub fn run(input: []const u8) !i64 {
         var lines = std.mem.splitScalar(u8, input, '\n');
 
-        var position: i16 = 50;
+        var position: usize = 50;
         var count: usize = 0;
         while (lines.next()) |line| {
             if (line.len == 0) {
@@ -65,22 +65,17 @@ const day_1_part_2 = struct {
             const steps = try std.fmt.parseInt(usize, line[1..], 10);
             switch (line[0]) {
                 'L' => {
-                    for (0..steps) |_| {
-                        position -= 1;
-                        position = @mod(position, 100);
-                        if (position == 0) {
-                            count += 1;
-                        }
-                    }
+                    // FIXME: simplify
+                    const zeros_encountered = (steps -| position) / 100 + (position + 99) / 100 * @intFromBool(position <= steps);
+                    const new_position = @mod((((steps - 1) / 100 + 1) * 100) - steps + position, 100);
+
+                    position = new_position;
+                    count += zeros_encountered;
                 },
                 'R' => {
-                    for (0..steps) |_| {
-                        position += 1;
-                        position = @mod(position, 100);
-                        if (position == 0) {
-                            count += 1;
-                        }
-                    }
+                    const new_position = @as(usize, @intCast(position)) + steps;
+                    count += new_position / 100;
+                    position = @intCast(@mod(new_position, 100));
                 },
                 else => {
                     @panic("unexpected first character in line");
