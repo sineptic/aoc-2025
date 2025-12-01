@@ -22,12 +22,6 @@ pub fn load_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
 }
 
 const day_1_part_1 = struct {
-    const Rotation = struct {
-        direction: Direction,
-        steps: i16,
-
-        const Direction = enum { left, right };
-    };
     pub fn run(input: []const u8) !i64 {
         var lines = std.mem.splitScalar(u8, input, '\n');
 
@@ -37,36 +31,24 @@ const day_1_part_1 = struct {
             if (line.len == 0) {
                 continue;
             }
-            const direction_letter = line[0];
-            const direction = a: switch (direction_letter) {
+            const steps = try std.fmt.parseInt(i16, line[1..], 10);
+            switch (line[0]) {
                 'L' => {
-                    break :a Rotation.Direction.left;
+                    position -= steps;
+                    position = @mod(position, 100);
                 },
                 'R' => {
-                    break :a Rotation.Direction.right;
+                    position += steps;
+                    position = @mod(position, 100);
                 },
                 else => {
-                    std.debug.panic("unexpected first character in line: {c}", .{direction_letter});
-                },
-            };
-            const remainder = line[1..];
-            const steps = try std.fmt.parseInt(i16, remainder, 10);
-            const rotation = Rotation{ .direction = direction, .steps = steps };
-
-            switch (rotation.direction) {
-                .left => {
-                    position -= rotation.steps;
-                },
-                .right => {
-                    position += rotation.steps;
+                    @panic("unexpected first character in line");
                 },
             }
-            position = @mod(position, 100);
             if (position == 0) {
                 count += 1;
             }
         }
-
         return @intCast(count);
     }
 };
