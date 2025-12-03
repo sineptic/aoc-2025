@@ -21,6 +21,10 @@ pub fn load_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
     return content;
 }
 
+pub fn int_cast(comptime T: type, int: anytype) T {
+    return @as(T, @intCast(int));
+}
+
 const day_1_part_1 = struct {
     pub fn run(input: []const u8) !i64 {
         var lines = std.mem.splitScalar(u8, input, '\n');
@@ -41,9 +45,7 @@ const day_1_part_1 = struct {
                     position += steps;
                     position = @mod(position, 100);
                 },
-                else => {
-                    @panic("unexpected first character in line");
-                },
+                else => unreachable,
             }
             if (position == 0) {
                 count += 1;
@@ -56,30 +58,28 @@ const day_1_part_2 = struct {
     pub fn run(input: []const u8) !i64 {
         var lines = std.mem.splitScalar(u8, input, '\n');
 
-        var position: usize = 50;
+        var position: i32 = 50;
         var count: usize = 0;
         while (lines.next()) |line| {
+            assert(position >= 0 and position < 100);
             if (line.len == 0) {
                 continue;
             }
-            const steps = try std.fmt.parseInt(usize, line[1..], 10);
+            const steps = try std.fmt.parseInt(u32, line[1..], 10);
             switch (line[0]) {
                 'L' => {
-                    // FIXME: simplify
-                    const zeros_encountered = (steps -| position) / 100 + (position + 99) / 100 * @intFromBool(position <= steps);
-                    const new_position = @mod((((steps - 1) / 100 + 1) * 100) - steps + position, 100);
+                    const zeros_encountered = (int_cast(u32, @mod(-position, 100)) + steps) / 100;
+                    const new_position = @mod(-int_cast(i32, steps) + position, 100);
 
                     position = new_position;
                     count += zeros_encountered;
                 },
                 'R' => {
-                    const new_position = @as(usize, @intCast(position)) + steps;
+                    const new_position = int_cast(usize, position) + steps;
                     count += new_position / 100;
                     position = @intCast(@mod(new_position, 100));
                 },
-                else => {
-                    @panic("unexpected first character in line");
-                },
+                else => unreachable,
             }
         }
         return @intCast(count);
