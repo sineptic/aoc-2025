@@ -129,7 +129,7 @@ const day_2 = struct {
     fn solve_range1(left_raw: []const u8, right_raw: []const u8) u64 {
         assert(right_raw.len <= 10);
 
-        var number_buffer: [1000]u8 = undefined;
+        var number_buffer: [10]u8 = undefined;
         @memcpy(number_buffer[0..left_raw.len], left_raw);
 
         const left = std.fmt.parseInt(u64, left_raw, 10) catch unreachable;
@@ -180,7 +180,7 @@ const day_2 = struct {
     fn solve_range2(left_raw: []const u8, right_raw: []const u8) u64 {
         assert(right_raw.len <= 10);
 
-        var number_buffer: [1000]u8 = undefined;
+        var number_buffer: [10]u8 = undefined;
         @memcpy(number_buffer[0..left_raw.len], left_raw);
 
         const left = std.fmt.parseInt(u64, left_raw, 10) catch unreachable;
