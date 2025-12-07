@@ -21,7 +21,7 @@ pub fn load_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
     assert(day > 0);
     const file_path = try std.fmt.allocPrint(allocator, "inputs/day-{}.txt", .{day});
     defer allocator.free(file_path);
-    const content = try std.fs.cwd().readFileAllocOptions(allocator, file_path, 100_000, 100_000, .of(u8), null);
+    const content = try std.fs.cwd().readFileAlloc(allocator, file_path, 100_000);
     return content;
 }
 pub fn load_example_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
@@ -138,28 +138,24 @@ const day_2 = struct {
         if (number.len != length * 2) {
             return false;
         }
-        for (0..number.len - length) |i| {
-            const left = number[i];
-            const right = number[i + length];
-            if (left != right) {
-                return false;
-            }
-        }
-        return true;
+        return std.mem.eql(
+            u8,
+            number[0 .. number.len - length],
+            number[length..number.len],
+        );
     }
     fn is_repeated2(number: []const u8) bool {
-        outer: for (1..number.len / 2 + 1) |length| {
+        for (1..number.len / 2 + 1) |length| {
             if (@mod(number.len, length) != 0) {
                 continue;
             }
-            for (0..number.len - length) |i| {
-                const left = number[i];
-                const right = number[i + length];
-                if (left != right) {
-                    continue :outer;
-                }
+            if (std.mem.eql(
+                u8,
+                number[0 .. number.len - length],
+                number[length..number.len],
+            )) {
+                return true;
             }
-            return true;
         }
         return false;
     }
