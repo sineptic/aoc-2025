@@ -1,6 +1,10 @@
+# zig
 .zig-cache
 zig-out
 
+# perf
 main
 output.svg
 perf.data*
+# samply
+profile.json.gz
