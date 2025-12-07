@@ -126,34 +126,41 @@ const day_2 = struct {
     }
     fn solve_range(left_raw: []const u8, right_raw: []const u8, is_repeated: fn ([]const u8) bool) u64 {
         var number_buffer: [1000]u8 = undefined;
-
-        // assert(left_raw.len == right_raw.len);
-        if (left_raw.len != right_raw.len) {
-            std.debug.print("{s} {s}\n", .{ left_raw, right_raw });
-        }
+        @memcpy(number_buffer[0..left_raw.len], left_raw);
 
         const left = std.fmt.parseInt(u64, left_raw, 10) catch unreachable;
         const right = std.fmt.parseInt(u64, right_raw, 10) catch unreachable;
 
         var result: u64 = 0;
+        var current_raw = number_buffer[0..left_raw.len];
         var current = left;
         while (current <= right) {
-            const printed_number = std.fmt.bufPrint(&number_buffer, "{}", .{current}) catch unreachable;
-            if (is_repeated(printed_number)) {
+            if (is_repeated(current_raw)) {
                 result += current;
             }
+
             current += 1;
+            const fit = increment(current_raw);
+            if (!fit) {
+                @memset(number_buffer[0..], '0');
+                number_buffer[0] = '1';
+                current_raw = number_buffer[0 .. current_raw.len + 1];
+            }
         }
         return result;
     }
-    fn increment(number: []u8) void {
+    fn increment(number: []u8) bool {
         switch (number[number.len - 1]) {
-            '0' or '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' => {
+            '0'...'8' => {
                 number[number.len - 1] += 1;
+                return true;
             },
             '9' => {
+                if (number.len <= 1) {
+                    return false;
+                }
                 number[number.len - 1] = '0';
-                increment(number[0 .. number.len - 1]);
+                return increment(number[0 .. number.len - 1]);
             },
             else => unreachable,
         }
