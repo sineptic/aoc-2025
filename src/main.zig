@@ -104,7 +104,7 @@ const day_2 = struct {
         return run(input, is_repeated2);
     }
 
-    fn run(input: []const u8, comptime is_repeated: fn ([]const u8) bool) !i64 {
+    fn run(input: []const u8, is_repeated: fn ([]const u8) bool) !i64 {
         const mb_line_end = std.mem.indexOfScalar(u8, input, '\n');
         const first_line = a: {
             if (mb_line_end) |line_end| {
@@ -146,15 +146,12 @@ const day_2 = struct {
     }
     fn is_repeated2(number: []const u8) bool {
         for (1..number.len / 2 + 1) |length| {
-            if (@mod(number.len, length) != 0) {
-                continue;
-            }
             if (std.mem.eql(
                 u8,
                 number[0 .. number.len - length],
                 number[length..number.len],
             )) {
-                return true;
+                return @mod(number.len, length) == 0;
             }
         }
         return false;
