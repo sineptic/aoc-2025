@@ -21,7 +21,7 @@ pub fn load_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
     assert(day > 0);
     const file_path = try std.fmt.allocPrint(allocator, "inputs/day-{}.txt", .{day});
     defer allocator.free(file_path);
-    const content = try std.fs.cwd().readFileAlloc(allocator, file_path, 100_000);
+    const content = try std.fs.cwd().readFileAllocOptions(allocator, file_path, 100_000, 100_000, .of(u8), null);
     return content;
 }
 pub fn load_example_input(allocator: std.mem.Allocator, day: u8) ![]const u8 {
@@ -117,8 +117,6 @@ const day_2 = struct {
 
         var result: i64 = 0;
         var number_buffer: [1000]u8 = undefined;
-        var number_buffer2 = std.heap.FixedBufferAllocator.init(&number_buffer);
-        const number_allocator = number_buffer2.allocator();
         while (ranges.next()) |range| {
             const dash_pos = std.mem.indexOfScalar(u8, range, '-') orelse unreachable;
             const left_raw = range[0..dash_pos];
@@ -127,8 +125,7 @@ const day_2 = struct {
             const right = try std.fmt.parseInt(u64, right_raw, 10);
 
             for (left..right + 1) |number| {
-                const printed_number = try std.fmt.allocPrint(number_allocator, "{}", .{number});
-                defer number_allocator.free(printed_number);
+                const printed_number = try std.fmt.bufPrint(&number_buffer, "{}", .{number});
                 if (is_repeated(printed_number)) {
                     result += int_cast(i64, number);
                 }
@@ -151,19 +148,13 @@ const day_2 = struct {
         return true;
     }
     fn is_repeated2(number: []const u8) bool {
-        outer: for (1..number.len) |length| {
+        outer: for (1..number.len / 2 + 1) |length| {
             if (@mod(number.len, length) != 0) {
                 continue;
             }
-            if (@mod(number.len, number.len / length) != 0) {
-                continue;
-            }
-            if (number.len / length < 2) {
-                continue;
-            }
-            for (0..number.len) |i| {
+            for (0..number.len - length) |i| {
                 const left = number[i];
-                const right = number[@mod(i, length)];
+                const right = number[i + length];
                 if (left != right) {
                     continue :outer;
                 }
