@@ -98,13 +98,13 @@ const day_1_part_2 = struct {
 };
 const day_2 = struct {
     fn run1(input: []const u8) !i64 {
-        return run(input, validate_day_1);
+        return run(input, is_repeated1);
     }
     fn run2(input: []const u8) !i64 {
-        return run(input, validate_day_2);
+        return run(input, is_repeated2);
     }
 
-    fn run(input: []const u8, validate_length: fn (usize, usize) bool) !i64 {
+    fn run(input: []const u8, comptime is_repeated: fn ([]const u8) bool) !i64 {
         const mb_line_end = std.mem.indexOfScalar(u8, input, '\n');
         const first_line = a: {
             if (mb_line_end) |line_end| {
@@ -129,20 +129,14 @@ const day_2 = struct {
             for (left..right + 1) |number| {
                 const printed_number = try std.fmt.allocPrint(number_allocator, "{}", .{number});
                 defer number_allocator.free(printed_number);
-                if (is_repeated(printed_number, validate_length)) {
+                if (is_repeated(printed_number)) {
                     result += int_cast(i64, number);
                 }
             }
         }
         return result;
     }
-    fn validate_day_1(total_length: usize, sequence_length: usize) bool {
-        return total_length / sequence_length == 2;
-    }
-    fn validate_day_2(total_length: usize, sequence_length: usize) bool {
-        return total_length / sequence_length >= 2;
-    }
-    fn is_repeated(number: []const u8, validate_length: fn (usize, usize) bool) bool {
+    fn is_repeated1(number: []const u8) bool {
         outer: for (1..number.len) |length| {
             if (@mod(number.len, length) != 0) {
                 continue;
@@ -150,7 +144,29 @@ const day_2 = struct {
             if (@mod(number.len, number.len / length) != 0) {
                 continue;
             }
-            if (!validate_length(number.len, length)) {
+            if (number.len / length != 2) {
+                continue;
+            }
+            for (0..number.len) |i| {
+                const left = number[i];
+                const right = number[@mod(i, length)];
+                if (left != right) {
+                    continue :outer;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    fn is_repeated2(number: []const u8) bool {
+        outer: for (1..number.len) |length| {
+            if (@mod(number.len, length) != 0) {
+                continue;
+            }
+            if (@mod(number.len, number.len / length) != 0) {
+                continue;
+            }
+            if (number.len / length < 2) {
                 continue;
             }
             for (0..number.len) |i| {
