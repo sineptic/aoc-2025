@@ -97,14 +97,14 @@ const day_1_part_2 = struct {
     }
 };
 const day_2 = struct {
-    fn run1(input: []const u8) !i64 {
+    fn run1(input: []const u8) !u64 {
         return run(input, is_repeated1);
     }
-    fn run2(input: []const u8) !i64 {
+    fn run2(input: []const u8) !u64 {
         return run(input, is_repeated2);
     }
 
-    fn run(input: []const u8, is_repeated: fn ([]const u8) bool) !i64 {
+    fn run(input: []const u8, is_repeated: fn ([]const u8) bool) !u64 {
         const mb_line_end = std.mem.indexOfScalar(u8, input, '\n');
         const first_line = a: {
             if (mb_line_end) |line_end| {
@@ -115,23 +115,48 @@ const day_2 = struct {
         };
         var ranges = std.mem.splitScalar(u8, first_line, ',');
 
-        var result: i64 = 0;
-        var number_buffer: [1000]u8 = undefined;
+        var result: u64 = 0;
         while (ranges.next()) |range| {
             const dash_pos = std.mem.indexOfScalar(u8, range, '-') orelse unreachable;
             const left_raw = range[0..dash_pos];
             const right_raw = range[dash_pos + 1 ..];
-            const left = try std.fmt.parseInt(u64, left_raw, 10);
-            const right = try std.fmt.parseInt(u64, right_raw, 10);
-
-            for (left..right + 1) |number| {
-                const printed_number = try std.fmt.bufPrint(&number_buffer, "{}", .{number});
-                if (is_repeated(printed_number)) {
-                    result += int_cast(i64, number);
-                }
-            }
+            result += solve_range(left_raw, right_raw, is_repeated);
         }
         return result;
+    }
+    fn solve_range(left_raw: []const u8, right_raw: []const u8, is_repeated: fn ([]const u8) bool) u64 {
+        var number_buffer: [1000]u8 = undefined;
+
+        // assert(left_raw.len == right_raw.len);
+        if (left_raw.len != right_raw.len) {
+            std.debug.print("{s} {s}\n", .{ left_raw, right_raw });
+        }
+
+        const left = std.fmt.parseInt(u64, left_raw, 10) catch unreachable;
+        const right = std.fmt.parseInt(u64, right_raw, 10) catch unreachable;
+
+        var result: u64 = 0;
+        var current = left;
+        while (current <= right) {
+            const printed_number = std.fmt.bufPrint(&number_buffer, "{}", .{current}) catch unreachable;
+            if (is_repeated(printed_number)) {
+                result += current;
+            }
+            current += 1;
+        }
+        return result;
+    }
+    fn increment(number: []u8) void {
+        switch (number[number.len - 1]) {
+            '0' or '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' => {
+                number[number.len - 1] += 1;
+            },
+            '9' => {
+                number[number.len - 1] = '0';
+                increment(number[0 .. number.len - 1]);
+            },
+            else => unreachable,
+        }
     }
     fn is_repeated1(number: []const u8) bool {
         const length = number.len / 2;
