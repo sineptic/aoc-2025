@@ -138,24 +138,12 @@ const day_2 = struct {
     }
     fn is_repeated1(number: []const u8) bool {
         const length = number.len / 2;
-        if (length == 0) {
+        if (number.len != length * 2) {
             return false;
         }
-        if (number.len == 2) {
-            return number[0] == number[1];
-        }
-        if (number.len == 3) {
-            return false;
-        }
-        if (@mod(number.len, length) != 0) {
-            return false;
-        }
-        if (@mod(number.len, number.len / length) != 0) {
-            return false;
-        }
-        for (0..number.len) |i| {
+        for (0..number.len - length) |i| {
             const left = number[i];
-            const right = number[@mod(i, length)];
+            const right = number[i + length];
             if (left != right) {
                 return false;
             }
