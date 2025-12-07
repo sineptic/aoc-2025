@@ -137,26 +137,30 @@ const day_2 = struct {
         return result;
     }
     fn is_repeated1(number: []const u8) bool {
-        outer: for (1..number.len) |length| {
-            if (@mod(number.len, length) != 0) {
-                continue;
-            }
-            if (@mod(number.len, number.len / length) != 0) {
-                continue;
-            }
-            if (number.len / length != 2) {
-                continue;
-            }
-            for (0..number.len) |i| {
-                const left = number[i];
-                const right = number[@mod(i, length)];
-                if (left != right) {
-                    continue :outer;
-                }
-            }
-            return true;
+        const length = number.len / 2;
+        if (length == 0) {
+            return false;
         }
-        return false;
+        if (number.len == 2) {
+            return number[0] == number[1];
+        }
+        if (number.len == 3) {
+            return false;
+        }
+        if (@mod(number.len, length) != 0) {
+            return false;
+        }
+        if (@mod(number.len, number.len / length) != 0) {
+            return false;
+        }
+        for (0..number.len) |i| {
+            const left = number[i];
+            const right = number[@mod(i, length)];
+            if (left != right) {
+                return false;
+            }
+        }
+        return true;
     }
     fn is_repeated2(number: []const u8) bool {
         outer: for (1..number.len) |length| {
