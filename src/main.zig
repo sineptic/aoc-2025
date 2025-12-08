@@ -21,8 +21,8 @@ pub fn main() !void {
     // for (0..100) |_| {
     std.debug.print("day 1 part 1: {}\n", .{try day_1.run1(input1)});
     std.debug.print("day 1 part 2: {}\n", .{try day_1.run2(input1)});
-    std.debug.print("day 2 part 1: {}\n", .{try day_2.run1(input2)});
-    std.debug.print("day 2 part 2: {}\n", .{try day_2.run2(input2)});
+    std.debug.print("day 2 part 1: {}\n", .{day_2.run1(input2)});
+    std.debug.print("day 2 part 2: {}\n", .{day_2.run2(input2)});
     std.debug.print("day 3 part 1: {}\n", .{day_3.run1(input3)});
     std.debug.print("day 3 part 2: {}\n", .{day_3.run2(input3)});
     // }
@@ -45,14 +45,11 @@ test "day_2" {
     const input = try utils.load_input(gpa, 2);
     defer gpa.free(input);
 
-    const a = try day_2.run2("121212-121213");
-    try std.testing.expectEqual(121212, a);
+    try std.testing.expectEqual(121212, day_2.run2("121212-121213"));
 
-    const answer_1 = try day_2.run1(input);
-    try std.testing.expectEqual(40398804950, answer_1);
+    try std.testing.expectEqual(40398804950, day_2.run1(input));
 
-    const answer_2 = try day_2.run2(input);
-    try std.testing.expectEqual(65794984339, answer_2);
+    try std.testing.expectEqual(65794984339, day_2.run2(input));
 }
 
 test "day_3" {

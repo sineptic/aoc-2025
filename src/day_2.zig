@@ -3,14 +3,14 @@ const assert = std.debug.assert;
 
 const utils = @import("utils");
 
-pub fn run1(input: []const u8) !u64 {
+pub fn run1(input: []const u8) u64 {
     return run(input, solve_range1);
 }
-pub fn run2(input: []const u8) !u64 {
+pub fn run2(input: []const u8) u64 {
     return run(input, solve_range2);
 }
 
-fn run(input: []const u8, solve_range: fn ([]const u8, []const u8) u64) !u64 {
+fn run(input: []const u8, solve_range: fn ([]const u8, []const u8) u64) u64 {
     const mb_line_end = std.mem.indexOfScalar(u8, input, '\n');
     const first_line = a: {
         if (mb_line_end) |line_end| {
